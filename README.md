@@ -1,5 +1,5 @@
 # cpp-cpu-simulator
-Basic cpu simulator implemented in cpp.
+Basic cpu simulator implemented in cpp.\
 **Architecture:**
 - 32-bit RISC-V
 - Little-endian byte ordering
