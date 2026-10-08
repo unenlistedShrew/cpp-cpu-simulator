@@ -29,7 +29,7 @@ namespace{
         constexpr std::uint8_t BNE = 0b001;
         constexpr std::uint8_t BLT = 0b100;
         constexpr std::uint8_t BGE = 0b101;
-        constexpr std::uint8_t LW = 0b010;
+        constexpr std::uint8_t WORD = 0b010;
     }
 
     //binary encoding for the additional function code needed to differentiate operations that
@@ -93,10 +93,21 @@ namespace{
         bits |= (static_cast<std::uint32_t>(opcode) & 0x7f);
         return bits;
     }
+
+    std::uint32_t encode_s_type(std::int16_t imm, std::uint8_t rs2, std::uint8_t rs1, std::uint8_t funct3, std::uint8_t opcode){
+        std::uint32_t bits = 0;
+        bits |= ((static_cast<std::uint32_t>(imm) >> 5) & 0x7f) << 25;
+        bits |= (static_cast<std::uint32_t>(rs2) & 0x1f) << 20;
+        bits |= (static_cast<std::uint32_t>(rs1) & 0x1f) << 15;
+        bits |= (static_cast<std::uint32_t>(funct3) & 0x07) << 12;
+        bits |= (static_cast<std::uint32_t>(imm) & 0x1f) << 7;
+        bits |= (static_cast<std::uint32_t>(opcode) & 0x7f);
+        return bits;
+    }
 }
 
 
-Instruction::Instruction(InstructionType i, Register rd, Register rs1, Register rs2){
+Instruction::Instruction(InstructionType i, std::uint8_t rd, std::uint8_t rs1, std::uint8_t rs2){
     switch(i){
         case InstructionType::ADD:
             bits = encode_r_type(funct7::NORMAL, rs2, rs1, funct3::ADD_SUB, rd, Opcode::R_TYPE);
@@ -130,7 +141,7 @@ Instruction::Instruction(InstructionType i, Register rd, Register rs1, Register 
     }
 }
 
-Instruction::Instruction(InstructionType i, Register rd, Register rs, std::int16_t imm){
+Instruction::Instruction(InstructionType i, std::uint8_t rd, std::uint8_t rs, std::int16_t imm){
     switch(i){
         case InstructionType::ADDI:
             bits = encode_i_type(imm, rs, funct3::ADD_SUB, rd, Opcode::I_TYPE);
@@ -145,7 +156,10 @@ Instruction::Instruction(InstructionType i, Register rd, Register rs, std::int16
             bits = encode_i_type(imm, rs, funct3::SLT, rd, Opcode::I_TYPE);
             break;
         case InstructionType::LW:
-            bits = encode_i_type(imm, rs, funct3::LW, rd, Opcode::LOAD);
+            bits = encode_i_type(imm, rs, funct3::WORD, rd, Opcode::LOAD);
+            break;
+        case InstructionType::SW:
+            bits = encode_s_type(imm, rd, rs, funct3::WORD, Opcode::STORE);
             break;
         case InstructionType::JALR:
             bits = encode_i_type(imm, rs, funct3::JALR, rd, Opcode::JALR);
@@ -167,7 +181,7 @@ Instruction::Instruction(InstructionType i, Register rd, Register rs, std::int16
     }
 }
 
-Instruction::Instruction(InstructionType i, Register rd, std::int32_t imm){
+Instruction::Instruction(InstructionType i, std::uint8_t rd, std::int32_t imm){
     switch(i){
         case InstructionType::JAL:
             bits = encode_j_type(imm, rd, Opcode::JAL);

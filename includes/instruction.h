@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-typedef std::uint8_t Register;
-
 enum class InstructionType {
     ADD,
     ADDI,
@@ -35,11 +33,13 @@ class Instruction{
         std::uint32_t bits = 0;
 
     public:
-        Instruction(InstructionType i, Register rd, Register rs1, Register rs2);
+        Instruction(){};
 
-        Instruction(InstructionType i, Register rd, Register rs, std::int16_t imm);
+        Instruction(InstructionType i, std::uint8_t rd, std::uint8_t rs1, std::uint8_t rs2);
 
-        Instruction(InstructionType i, Register rd, std::int32_t imm);
+        Instruction(InstructionType i, std::uint8_t rd, std::uint8_t rs, std::int16_t imm);
+
+        Instruction(InstructionType i, std::uint8_t rd, std::int32_t imm);
 
         std::uint32_t get_bits() const;
 };
