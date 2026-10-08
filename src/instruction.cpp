@@ -1,6 +1,5 @@
 #include "../includes/instruction.h"
 #include <iostream>
-#include <cstdint>
 
 namespace{
     //binary encodings for the Opcodes in the supported ISA
